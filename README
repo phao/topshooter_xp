@@ -12,9 +12,18 @@ rotate a bunch of them according to circular motions of all kinds.
 move a bunch of them radially outwards. The final result looks like a "nova"
 spell.
 
+- plazma_arrow_shot_snapshots: Takes the blue plazma arrow graphics to draw
+snapshots of its path as it'd move along when fired. This isn't an animation.
+It merely draws the trajectory of the shot.
+
+- plazma_arrow_shot_snapshots: Animate plazma arrow shots with the blue plazma
+arrow shot graphics. They're shot and "hit" at random. Check the youtube
+video below.
+
 Youtube Videos
 ==============
 - rotating_swirls: https://www.youtube.com/watch?v=6UjjLtdaVjg
+- plazma_arrow_shot_snapshots:
 
 Tatermand
 =========

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+g++ -std=c++11 -Wall -Wextra -pedantic -ftree-vrp -Warray-bounds \
+  -I/usr/include/SDL2/ \
+  PlazmaArrowShot.cpp Shared.cpp main.cpp \
+  -Og \
+  -lSDL2 -lSDL2_image -lm
+
+./a.out
+
+rm -f a.out

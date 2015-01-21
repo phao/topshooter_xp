@@ -6,10 +6,9 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
-#define PI_d 3.141592
-
-#define FOR_RANGE(TYPE, I, LOWER, X_UPPER) \
-  for (TYPE I = LOWER; I < X_UPPER; I++)
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 struct Image {
   SDL_Texture *tex;
@@ -54,6 +53,10 @@ ErrorExit(void) {
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
+
+struct Float2 {
+  float x, y;
+};
 
 static struct Image
 LoadImage(const char *file_name) {
@@ -103,6 +106,7 @@ Init(void) {
 static void
 DrawWholeScreenGrid(int w, int h) {
   SDL_SetRenderDrawColor(rend, 128, 128, 128, 255);
+
   for (int x = 0; x < SCREEN_WIDTH; x += w) {
     SDL_RenderDrawLine(rend, x, 0, x, SCREEN_HEIGHT-1);
   }
@@ -115,7 +119,7 @@ DrawWholeScreenGrid(int w, int h) {
  * Draw the image with its CENTER at x,y and rotated by ANGLE around its
  * center. You should also specify x,y from left->right and bottom->up.
  *
- * The flip is as in SDL_RenderCopyEx.
+ * @note The flip is as in SDL_RenderCopyEx.
  *
  * @note Angle is in radians.
  *
@@ -126,12 +130,12 @@ DrawWholeScreenGrid(int w, int h) {
  * you can do, but it also makes it way simpler to use this function.
  */
 static void
-DrawTexture(struct Image *img,
-            int x, int y,
-            double angle,
-            SDL_RendererFlip flip)
+DrawLeftImage(struct Image *img,
+              int x, int y,
+              float angle,
+              SDL_RendererFlip flip)
 {
-  const double RAD_TO_DEG = 180.0 / PI_d;
+  const double RAD_TO_DEG = 180.0 / M_PI;
 
   y = SCREEN_HEIGHT - 1 - y;
   angle *= -1;
@@ -144,84 +148,129 @@ DrawTexture(struct Image *img,
 }
 
 /**
- * Directly calls DrawTexture, however, it normalizes the angle to correct
+ * Directly calls DrawLeftImage, however, it normalizes the angle to correct
  * for the fact that the image points up (and not left) by default.
  *
  * Basically, it's equivalent to calling:
- * DrawTexture(img, x, y, angle - PI_d*0.5)
+ * DrawLeftImage(img, x, y, angle - M_PI*0.5, flip)
  */
 static void
-DrawUpTexture(struct Image *img,
-              int x, int y,
-              double angle,
-              SDL_RendererFlip flip)
+DrawUpImage(struct Image *img,
+            int x, int y,
+            float angle,
+            SDL_RendererFlip flip)
 {
-  DrawTexture(img, x, y, angle - PI_d*0.5, flip);
+  DrawLeftImage(img, x, y, angle - M_PI*0.5, flip);
 }
 
 /**
- * Directly calls DrawTexture, however, it normalizes the angle to correct
+ * Directly calls DrawLeftImage, however, it normalizes the angle to correct
  * for the fact that the image points right (and not left) by default.
  *
  * Basically, it's equivalent to calling:
- * DrawTexture(img, x, y, angle - PI_d)
+ * DrawLeftImage(img, x, y, angle - M_PI, flip)
  */
 static void
-DrawRightTexture(struct Image *img,
-                 int x, int y,
-                 double angle,
-                 SDL_RendererFlip flip)
+DrawRightImage(struct Image *img,
+               int x, int y,
+               float angle,
+               SDL_RendererFlip flip)
 {
-  DrawTexture(img, x, y, angle - PI_d, flip);
+  DrawLeftImage(img, x, y, angle - M_PI, flip);
 }
 
 /**
- * Directly calls DrawTexture, however, it normalizes the angle to correct
+ * Directly calls DrawLeftImage, however, it normalizes the angle to correct
  * for the fact that the image points down (and not left) by default.
  *
  * Basically, it's equivalent to calling:
- * DrawTexture(img, x, y, angle - PI_d*1.5)
+ * DrawLeftImage(img, x, y, angle - M_PI*1.5, flip)
  */
 static void
-DrawDownTexture(struct Image *img,
+DrawBottomImage(struct Image *img,
                 int x, int y,
-                double angle,
+                float angle,
                 SDL_RendererFlip flip)
 {
-  DrawTexture(img, x, y, angle - PI_d*1.5, flip);
+  DrawLeftImage(img, x, y, angle - M_PI*1.5, flip);
+}
+
+/**
+ * Assumes the base of the image is at its mid-left point. This isn't a problem
+ * if you're drawing your images with the appropriated Draw<DIR>Image call.
+ */
+static struct Float2
+CenterForBaseAt(const struct Image *img,
+                float base_x, float base_y,
+                float sin_angle, float cos_angle)
+{
+  float x = base_x + (img->h * cos_angle)/2.0f;
+  float y = base_y + (img->h * sin_angle)/2.0f;
+
+  return (struct Float2) {x, y};
+}
+
+/**
+ * Assumes the base of the image is at its mid-left point. This isn't a problem
+ * if you're drawing your images with the appropriated Draw<DIR>Image call.
+ */
+static struct Float2
+CenterForTopAt(const struct Image *img,
+                float top_x, float top_y,
+                float sin_angle, float cos_angle)
+{
+  float x = top_x - (img->h * cos_angle)/2.0f;
+  float y = top_y - (img->h * sin_angle)/2.0f;
+
+  return (struct Float2) {x, y};
 }
 
 static void
 Animate(Uint32 at_ms) {
-  (void) at_ms;
-
   enum {
-    N_SHOTS = 128
+    N_SHOTS = 32
   };
 
   DrawWholeScreenGrid(100, 100);
 
   SDL_SetTextureBlendMode(projectile_img.tex, SDL_BLENDMODE_ADD);
 
-  const int rad_max = 250;
+  const int rad_max = 350;
 
-  double rad = (at_ms/4 % rad_max);
-  double t = rad/rad_max;
-  double length = projectile_img.h;
-  int base_x = SCREEN_WIDTH/2;
-  int base_y = SCREEN_HEIGHT/2;
+  float rad = at_ms/5 % rad_max;
+  float t = rad/rad_max;
+
+  float base_x = SCREEN_WIDTH/2.0f;
+  float base_y = SCREEN_HEIGHT/2.0f;
 
   for (int i = 0; i < N_SHOTS; i++) {
-    double angle = i * PI_d*2.0/N_SHOTS;
-    double hor_shadow = length*cos(angle);
-    double vert_shadow = length*sin(angle);
-    int center_x = hor_shadow/2 + base_x + cos(angle)*rad;
-    int center_y = vert_shadow/2 + base_y + sin(angle)*rad;
-
-    SDL_SetTextureAlphaMod(projectile_img.tex, 255.0 * (1 - t) * (1 - t));
-    DrawUpTexture(&projectile_img, center_x, center_y,
-                  angle, SDL_FLIP_NONE);
+    float angle = i * M_PI*2.0/N_SHOTS;
+    float sin_angle = sinf(angle);
+    float cos_angle = cosf(angle);
+    struct Float2 center = CenterForTopAt(&projectile_img,
+                                          base_x + cos_angle*rad,
+                                          base_y + sin_angle*rad,
+                                          sin_angle, cos_angle);
+    SDL_SetTextureAlphaMod(projectile_img.tex, 255.0 * (1 - t));
+    DrawUpImage(&projectile_img, center.x + 0.5f, center.y + 0.5f,
+                angle, SDL_FLIP_NONE);
+    SDL_SetTextureAlphaMod(projectile_img.tex, 255.0 * t);
+    DrawUpImage(&projectile_img, center.x + 0.5f, center.y + 0.5f,
+                angle, SDL_FLIP_HORIZONTAL);
   }
+
+  /*
+  DrawWholeScreenGrid(100, 100);
+  float angle = M_PI/4;
+  float sin_angle = sin(angle);
+  float cos_angle = cos(angle);
+  SDL_Point center = CenterForBaseAt(&projectile_img,
+                                     100,
+                                     100,
+                                     sin_angle, cos_angle);
+  fprintf(stderr, "%d, %d\n", center.x, center.y);
+  DrawUpImage(&projectile_img, center.x, center.y, angle, SDL_FLIP_NONE);
+  */
 }
 
 static void

@@ -88,8 +88,13 @@ Init(void) {
   ExitLt0(load_status);
 
   load_status = SHR_LoadImage(screen.rend, "splash.png", &splash_img);
-  splash_img.w /= 2;
-  splash_img.h /= 2;
+  splash_img.w /= 1.5f;
+  splash_img.h /= 1.5f;
+  ExitLt0(load_status);
+
+  load_status = SHR_LoadImage(screen.rend, "halo.png", &halo_img);
+  halo_img.w /= 2;
+  halo_img.h /= 2;
   ExitLt0(load_status);
 
   for (int i = 0; i < MAX_ANIMS; i++) {
@@ -127,6 +132,7 @@ RandomAnimStart(struct PAS_Anim *anim, Uint32 ms_now) {
 
   angle = rand()/(float)RAND_MAX * M_PI*2.0f;
   vel_ms = SHR_Make_f2(cosf(angle), sinf(angle));
+  SHR_ScaleInto_f2(&vel_ms, .5f);
   rand_x = rand() % SCREEN_WIDTH/5 + SCREEN_WIDTH/2 - SCREEN_WIDTH/10;
   rand_y = rand() % SCREEN_HEIGHT/5 + SCREEN_HEIGHT/2 - SCREEN_HEIGHT/10;
   start_position = SHR_Make_f2(rand_x, rand_y);
@@ -137,11 +143,10 @@ RandomAnimStart(struct PAS_Anim *anim, Uint32 ms_now) {
 void
 AdvanceAnim(struct PAS_Anim *anim, Uint32 ms_now) {
   if (PAS_AnimHasStarted(anim, ms_now)) {
-    if (rand()%10 == 0 && PAS_AnimCanBeHit(anim, ms_now)) {
+    if (rand()%100 == 0 && PAS_AnimCanBeHit(anim, ms_now)) {
       PAS_AnimHit(anim, ms_now);
     }
-    PAS_AnimDraw(&screen, anim, ms_now);
-    if (PAS_AnimStage(anim, ms_now) > 0) {
+    if (PAS_AnimDraw(&screen, anim, ms_now) == 0) {
       PAS_AnimStop(anim);
     }
   }

@@ -8,14 +8,14 @@
 #include "Shared.h"
 
 enum {
-  PAS_DEFAULT_MS_TRAVEL_DURATION = 300,
-  PAS_DEFAULT_MS_FIRE_DURATION = 50,
-  PAS_DEFAULT_MS_SPLASH_DURATION = 100,
-  PAS_DEFAULT_MS_FADE_DURATION = 100,
+  PAS_DEFAULT_MS_TRAVEL_DURATION = 500,
+  PAS_DEFAULT_MS_FIRE_DURATION = 150,
+  PAS_DEFAULT_MS_SPLASH_DURATION = 300,
+  PAS_DEFAULT_MS_FADE_DURATION = 300,
 };
 
 struct PAS_Anim {
-  const struct SHR_Image *halo_img, *fire_img, *projectile_img, *splash_img;
+  struct SHR_Image *halo_img, *fire_img, *projectile_img, *splash_img;
 
   struct SHR_Float2 start_position;
   struct SHR_Float2 vel_ms;
@@ -138,7 +138,7 @@ PAS_AnimStage(struct PAS_Anim *anim, Uint32 ms_now) {
   return 0;
 }
 
-void
+int
 PAS_AnimDraw(struct SHR_Screen *screen,
              struct PAS_Anim *anim,
              Uint32 ms_now);

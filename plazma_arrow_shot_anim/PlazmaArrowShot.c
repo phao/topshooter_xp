@@ -68,6 +68,9 @@ PAS_AnimDraw(struct SHR_Screen *screen,
                                        anim->start_position,
                                        unit_vel);
 
+    // Should we make an effort to reduce this into a single fade-in call?
+    // Does it matter?
+
     const Uint8 old_fire_alpha_mod = FadeIn(anim->fire_img, dt,
                                             anim->ms_fire_duration);
 

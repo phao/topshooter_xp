@@ -13,7 +13,7 @@
 enum {
   SCREEN_WIDTH = 800,
   SCREEN_HEIGHT = 600,
-  MAX_ANIMS = 20
+  MAX_ANIMS = 200
 };
 
 static SDL_Window *win;
@@ -130,11 +130,11 @@ RandomAnimStart(struct PAS_Anim *anim, Uint32 ms_now) {
   struct SHR_Float2 vel_ms, start_position;
   int rand_x, rand_y;
 
-  angle = rand()/(float)RAND_MAX * M_PI*2.0f;
+  angle = rand()/(float)RAND_MAX * M_PI*0.125f + M_PI*(0.5f - 0.125f*0.5f);
   vel_ms = SHR_Make_f2(cosf(angle), sinf(angle));
   SHR_ScaleInto_f2(&vel_ms, .5f);
-  rand_x = rand() % SCREEN_WIDTH/5 + SCREEN_WIDTH/2 - SCREEN_WIDTH/10;
-  rand_y = rand() % SCREEN_HEIGHT/5 + SCREEN_HEIGHT/2 - SCREEN_HEIGHT/10;
+  rand_x = rand() % SCREEN_WIDTH/10 + SCREEN_WIDTH/2 - SCREEN_WIDTH/20;
+  rand_y = rand() % SCREEN_HEIGHT/10 + SCREEN_HEIGHT/10;
   start_position = SHR_Make_f2(rand_x, rand_y);
 
   PAS_AnimStart(anim, start_position, vel_ms, angle, ms_now);

@@ -20,10 +20,15 @@ It merely draws the trajectory of the shot.
 arrow shot graphics. They're shot and "hit" at random. Check the youtube
 video below.
 
+- sparts003: A simple particles system (my first attempt; the other two are
+separete projects elsewhere). It's supposed to simulate simple impact
+explosions (like when a lazer shot hits a wall).
+
 Youtube Videos
 ==============
 - rotating_swirls: https://www.youtube.com/watch?v=6UjjLtdaVjg
 - plazma_arrow_shot_snapshots: https://www.youtube.com/watch?v=I9xglCZQMmI
+- sparts003: https://www.youtube.com/watch?v=B7wuw_E_lgk
 
 Tatermand
 =========

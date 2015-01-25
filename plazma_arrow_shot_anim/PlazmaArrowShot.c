@@ -64,9 +64,14 @@ PAS_AnimDraw(struct SHR_Screen *screen,
     // and the halo.
 
     const struct SHR_Float2
-    start_center = SHR_CenterForBaseAt(anim->fire_img,
-                                       anim->start_position,
-                                       unit_vel);
+    fire_center = SHR_CenterForBaseAt(anim->fire_img,
+                                      anim->start_position,
+                                      unit_vel);
+
+    const struct SHR_Float2
+    halo_center = SHR_CenterForBaseAt(anim->halo_img,
+                                      anim->start_position,
+                                      unit_vel);
 
     // Should we make an effort to reduce this into a single fade-in call?
     // Does it matter?
@@ -77,11 +82,11 @@ PAS_AnimDraw(struct SHR_Screen *screen,
     const Uint8 old_halo_alpha_mod = FadeIn(anim->halo_img, dt,
                                             anim->ms_fire_duration);
 
-    SHR_DrawDownImage(screen, anim->fire_img,
-                      start_center, anim->angle, 0);
+    SHR_DrawUpImage(screen, anim->fire_img,
+                    fire_center, anim->angle, 0);
 
     SHR_DrawUpImage(screen, anim->halo_img,
-                    start_center, anim->angle, 0);
+                    halo_center, anim->angle, 0);
 
     SDL_SetTextureAlphaMod(anim->fire_img->tex, old_fire_alpha_mod);
     SDL_SetTextureAlphaMod(anim->halo_img->tex, old_halo_alpha_mod);

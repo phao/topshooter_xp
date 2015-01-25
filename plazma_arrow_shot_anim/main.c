@@ -13,7 +13,7 @@
 enum {
   SCREEN_WIDTH = 800,
   SCREEN_HEIGHT = 600,
-  MAX_ANIMS = 200
+  MAX_ANIMS = 2
 };
 
 static SDL_Window *win;

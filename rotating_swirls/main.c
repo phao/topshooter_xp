@@ -77,8 +77,8 @@ Init(void) {
 
   ExitIf0(swirl_surface);
 
-  swirl_rect.w = swirl_surface->w;
-  swirl_rect.h = swirl_surface->h;
+  swirl_rect.w = swirl_surface->w/4;
+  swirl_rect.h = swirl_surface->h/4;
 
   swirl_tex = SDL_CreateTextureFromSurface(rend, swirl_surface);
   SDL_FreeSurface(swirl_surface);

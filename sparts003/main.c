@@ -18,8 +18,8 @@ static struct SHR_Screen screen;
 static struct SHR_Image ball_img;
 
 enum {
-  PARTICLE_BATCHES_MAX = 1 << 10,
-  PARTICLES_PER_BATCH = 10,
+  PARTICLE_BATCHES_MAX = 1 << 8,
+  PARTICLES_PER_BATCH = 30,
 };
 
 struct ParticleBatch {
@@ -72,17 +72,17 @@ Init(void) {
 
   ErrIf0(win);
 
-  screen.rend = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED |
-                                   SDL_RENDERER_PRESENTVSYNC);
+  SDL_Renderer *rend;
+  rend = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED |
+                            SDL_RENDERER_PRESENTVSYNC);
 
-  ErrIf0(screen.rend);
+  ErrIf0(rend);
   ErrIf0(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG);
-  ErrLt0(SHR_LoadImage(screen.rend, "circle_grad.png", &ball_img));
+  ErrLt0(SHR_LoadImage(rend, "circle_grad.png", &ball_img));
 
   SDL_SetTextureBlendMode(ball_img.tex, SDL_BLENDMODE_ADD);
 
-  screen.w = WINDOW_WIDTH;
-  screen.h = WINDOW_HEIGHT;
+  SHR_ScreenSetup(&screen, rend, WINDOW_WIDTH, WINDOW_HEIGHT);
 }
 
 void
@@ -128,10 +128,10 @@ GenParticlesBatch(Uint32 ms_now) {
 
   struct SHR_Float2 pos = {x, y};
 
-  float spread_angle = M_PI*0.5f;
+  float spread_angle = M_PI*0.8f;
 
   float min_ms_vel = 0.0f;
-  float max_ms_vel = 0.05f;
+  float max_ms_vel = 0.03f;
 
   SDL_Color color = {255*(rand()/(float)RAND_MAX),
                      255*(rand()/(float)RAND_MAX),
@@ -139,6 +139,28 @@ GenParticlesBatch(Uint32 ms_now) {
                      255};
 
   Uint32 duration = 500;
+
+  AddParticlesBatch(pos, angle, spread_angle, min_ms_vel, max_ms_vel,
+                    color, ms_now, duration);
+}
+
+static void
+GenFixedFire(Uint32 ms_now) {
+  float angle = M_PI/4.0f;
+
+  struct SHR_Float2 pos = {400, 300};
+
+  float spread_angle = M_PI*0.1f;
+
+  float min_ms_vel = 0.01f;
+  float max_ms_vel = 0.1f;
+
+  SDL_Color color = {64 + 32*(rand()/(float)RAND_MAX),
+                     24 + 12*(rand()/(float)RAND_MAX),
+                     12,
+                     255};
+
+  Uint32 duration = 800;
 
   AddParticlesBatch(pos, angle, spread_angle, min_ms_vel, max_ms_vel,
                     color, ms_now, duration);
@@ -180,18 +202,36 @@ UpdateAndRenderParticles(Uint32 ms_now) {
   }
 
   SDL_SetTextureAlphaMod(ball_img.tex, 255);
+  SDL_SetTextureColorMod(ball_img.tex, 255, 255, 255);
 }
 
 static void
 UpdateAndRender(Uint32 ms_now) {
   (void) ms_now;
 
-  int n_particles = (rand()/(float)RAND_MAX)*PARTICLE_BATCHES_MAX*0.01f;
+  static double acc_time;
+  static Uint64 n_measures;
+
+  if (acc_time > 2) {
+    printf("%f secs (avg)\n", acc_time/n_measures);
+    acc_time = 0;
+    n_measures = 0;
+  }
+
+  int n_particles = (rand()/(float)RAND_MAX)*PARTICLE_BATCHES_MAX*0.004f;
 
   for (int i = 0; i < n_particles; i++) {
     GenParticlesBatch(ms_now);
   }
+  if (rand()%100 < 10) {
+    GenFixedFire(ms_now);
+  }
+
+  Uint64 before = SDL_GetPerformanceCounter();
   UpdateAndRenderParticles(ms_now);
+  Uint64 after = SDL_GetPerformanceCounter();
+  n_measures++;
+  acc_time += (after - before) / (double) SDL_GetPerformanceFrequency();
 }
 
 static void

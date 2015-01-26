@@ -93,6 +93,16 @@ struct SHR_Screen {
   int w, h;
 };
 
+inline void
+SHR_ScreenSetup(struct SHR_Screen *screen,
+                SDL_Renderer *rend,
+                int w, int h)
+{
+  screen->rend = rend;
+  screen->w = w;
+  screen->h = h;
+}
+
 int
 SHR_LoadImage(SDL_Renderer *rend,
               const char *file_name,

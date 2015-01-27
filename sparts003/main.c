@@ -26,7 +26,10 @@ struct ParticleBatch {
   Uint32 ms_start, ms_duration;
   struct SHR_Float2 start_position;
   SDL_Color color;
-  struct SHR_Float2 particles[PARTICLES_PER_BATCH];
+  struct {
+    struct SHR_Float2 pos;
+    float angle;
+  } particles[PARTICLES_PER_BATCH];
 };
 
 static struct ParticleBatch particles_batches[PARTICLE_BATCHES_MAX];
@@ -78,7 +81,7 @@ Init(void) {
 
   ErrIf0(rend);
   ErrIf0(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG);
-  ErrLt0(SHR_LoadImage(rend, "circle_grad.png", &ball_img));
+  ErrLt0(SHR_LoadImage(rend, "particle.png", &ball_img));
 
   SDL_SetTextureBlendMode(ball_img.tex, SDL_BLENDMODE_ADD);
 
@@ -109,11 +112,13 @@ AddParticlesBatch(struct SHR_Float2 start_position,
   float base_angle = center_out_angle - spread_angle/2.0f;
   float d_vel = ms_max_vel - ms_min_vel;
   for (int i = 0; i < PARTICLES_PER_BATCH; i++) {
-    struct SHR_Float2 *p_ms_vel = pb->particles + i;
+    struct SHR_Float2 *p_ms_vel = &pb->particles[i].pos;
     float angle = base_angle + (rand()/(float)RAND_MAX)*spread_angle;
     float vel = ms_min_vel + (rand()/(float)RAND_MAX)*d_vel;
     p_ms_vel->x = cosf(angle)*vel;
     p_ms_vel->y = sinf(angle)*vel;
+
+    pb->particles[i].angle = (rand()/(float)RAND_MAX)*2.0f*M_PI;
   }
 
   particles_batches_used++;
@@ -152,15 +157,15 @@ GenFixedFire(Uint32 ms_now) {
 
   float spread_angle = M_PI*0.1f;
 
-  float min_ms_vel = 0.01f;
-  float max_ms_vel = 0.1f;
+  float min_ms_vel = 0.0f;
+  float max_ms_vel = 0.2f;
 
   SDL_Color color = {64 + 32*(rand()/(float)RAND_MAX),
                      24 + 12*(rand()/(float)RAND_MAX),
                      12,
                      255};
 
-  Uint32 duration = 800;
+  Uint32 duration = 1200;
 
   AddParticlesBatch(pos, angle, spread_angle, min_ms_vel, max_ms_vel,
                     color, ms_now, duration);
@@ -192,10 +197,10 @@ UpdateAndRenderParticles(Uint32 ms_now) {
                            pb->color.b);
 
     for (int j = 0; j < PARTICLES_PER_BATCH; j++) {
-      struct SHR_Float2 d_pos = SHR_Scale_f2(dt, pb->particles[j]);
+      struct SHR_Float2 d_pos = SHR_Scale_f2(dt, pb->particles[j].pos);
       struct SHR_Float2 pos = SHR_Add_f2(pb->start_position, d_pos);
 
-      SHR_DrawRightImage(&screen, &ball_img, pos, 0, 0);
+      SHR_DrawRightImage(&screen, &ball_img, pos, pb->particles[j].angle, 0);
     }
 
     i++;
@@ -223,7 +228,7 @@ UpdateAndRender(Uint32 ms_now) {
   for (int i = 0; i < n_particles; i++) {
     GenParticlesBatch(ms_now);
   }
-  if (rand()%100 < 10) {
+  if (rand()%100 < 30) {
     GenFixedFire(ms_now);
   }
 

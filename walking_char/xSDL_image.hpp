@@ -16,7 +16,6 @@ load(const char *file_name) {
   return xSDL::Surface(surf);
 }
 
-
 } // xIMG
 
 #endif

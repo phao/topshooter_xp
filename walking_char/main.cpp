@@ -109,13 +109,13 @@ public:
     bouncing_angle /= 180;
     bouncing_angle *= M_PI;
 
-    float sin = std::sin(bouncing_angle)/2;
-    float cos = std::cos(bouncing_angle)/2;
-    aux_skeleton[SHOULDER_LEFT].y() += 3*sin;
-    aux_skeleton[SHOULDER_RIGHT].y() += 3*sin;
-    aux_skeleton[ARM_LEFT].y() += 10*cos;
-    aux_skeleton[ARM_RIGHT].y() += 10*sin;
-    aux_skeleton[WEAPON].y() += 10*sin;
+    float sin = std::sin(bouncing_angle);
+    float cos = std::cos(bouncing_angle);
+    aux_skeleton[SHOULDER_LEFT].y() += 2*sin;
+    aux_skeleton[SHOULDER_RIGHT].y() += 2*sin;
+    aux_skeleton[ARM_LEFT].y() += 3*cos;
+    aux_skeleton[ARM_RIGHT].y() += 3*sin;
+    aux_skeleton[WEAPON].y() += 3*sin;
 
     for (int i = NUM_BODY_PIECES-1; i >= 0; i--) {
       screen->draw_image_270((*images)+i, position + aux_skeleton[i],
@@ -205,7 +205,7 @@ public:
 
   int
   run() {
-    character.set_speed(0.2f);
+    character.set_speed(0.3f);
     Uint32 last_update = SDL_GetTicks();
     for (;;) {
       Uint32 now = SDL_GetTicks();
@@ -302,6 +302,7 @@ main(int argc, char **argv) {
     return Main("Walking Character", 800, 600).run();
   }
   catch (std::runtime_error &e) {
-    std::cerr << "Error: " << e.what() << '\n';
+    std::cerr << "Error: " << e.what() << ".\n";
+    return 1;
   }
 }

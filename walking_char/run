@@ -1,0 +1,10 @@
+#!/bin/bash
+
+g++ -std=c++11 -Wall -pedantic -Wextra -Warray-bounds -ftree-vrp \
+  -ggdb3 -Og \
+  main.cpp xSDL.cpp \
+  -lSDL2 -lSDL2_image
+
+valgrind ./a.out
+
+rm -f a.out

@@ -35,6 +35,8 @@ struct ParticleBatch {
 static struct ParticleBatch particles_batches[PARTICLE_BATCHES_MAX];
 static int particles_batches_used;
 
+#define RAND_01_f() (rand()/(float)RAND_MAX)
+
 static void
 Cleanup(void) {
   SHR_DestroyImage(&ball_img);
@@ -113,12 +115,12 @@ AddParticlesBatch(struct SHR_Float2 start_position,
   float d_vel = ms_max_vel - ms_min_vel;
   for (int i = 0; i < PARTICLES_PER_BATCH; i++) {
     struct SHR_Float2 *p_ms_vel = &pb->particles[i].pos;
-    float angle = base_angle + (rand()/(float)RAND_MAX)*spread_angle;
-    float vel = ms_min_vel + (rand()/(float)RAND_MAX)*d_vel;
+    float angle = base_angle + RAND_01_f()*spread_angle;
+    float vel = ms_min_vel + RAND_01_f()*d_vel;
     p_ms_vel->x = cosf(angle)*vel;
     p_ms_vel->y = sinf(angle)*vel;
 
-    pb->particles[i].angle = (rand()/(float)RAND_MAX)*2.0f*M_PI;
+    pb->particles[i].angle = RAND_01_f()*2.0f*M_PI;
   }
 
   particles_batches_used++;
@@ -126,10 +128,10 @@ AddParticlesBatch(struct SHR_Float2 start_position,
 
 static void
 GenParticlesBatch(Uint32 ms_now) {
-  float angle = (rand()/(float)RAND_MAX)*M_PI*2.0f;
+  float angle = RAND_01_f()*M_PI*2.0f;
 
-  float x = WINDOW_WIDTH*(rand()/(float)RAND_MAX);
-  float y = WINDOW_HEIGHT*(rand()/(float)RAND_MAX);
+  float x = WINDOW_WIDTH*RAND_01_f();
+  float y = WINDOW_HEIGHT*RAND_01_f();
 
   struct SHR_Float2 pos = {x, y};
 
@@ -138,9 +140,9 @@ GenParticlesBatch(Uint32 ms_now) {
   float min_ms_vel = 0.0f;
   float max_ms_vel = 0.03f;
 
-  SDL_Color color = {255*(rand()/(float)RAND_MAX),
-                     255*(rand()/(float)RAND_MAX),
-                     255*(rand()/(float)RAND_MAX),
+  SDL_Color color = {255*RAND_01_f(),
+                     255*RAND_01_f(),
+                     255*RAND_01_f(),
                      255};
 
   Uint32 duration = 500;
@@ -160,8 +162,8 @@ GenFixedFire(Uint32 ms_now) {
   float min_ms_vel = 0.0f;
   float max_ms_vel = 0.2f;
 
-  SDL_Color color = {64 + 32*(rand()/(float)RAND_MAX),
-                     24 + 12*(rand()/(float)RAND_MAX),
+  SDL_Color color = {64 + 32*RAND_01_f(),
+                     24 + 12*RAND_01_f(),
                      12,
                      255};
 
@@ -223,7 +225,7 @@ UpdateAndRender(Uint32 ms_now) {
     n_measures = 0;
   }
 
-  int n_particles = (rand()/(float)RAND_MAX)*PARTICLE_BATCHES_MAX*0.004f;
+  int n_particles = RAND_01_f()*PARTICLE_BATCHES_MAX*0.004f;
 
   for (int i = 0; i < n_particles; i++) {
     GenParticlesBatch(ms_now);

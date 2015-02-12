@@ -30,6 +30,10 @@ is to animate one of the topdown-shooter character by Tatermand. It should
 doesn't feel as good right now, but I'll improve on it later. The major
 purpose here was to get this working.
 
+- firing_char: Combination of walking_char and sparts003. The result is a
+walking char that can throw flames. The results were pretty cool for a
+first version (check the youtube video for a quick preview).
+
 Videos
 ======
 - rotating_swirls: https://www.youtube.com/watch?v=6UjjLtdaVjg
@@ -37,6 +41,7 @@ Videos
 - sparts003: https://www.youtube.com/watch?v=B7wuw_E_lgk
 - sparts003: https://personalphao.wordpress.com/2015/01/27/explosions-ish-particles-systems/
 - walking_char: https://www.youtube.com/watch?v=GgV71qMumtk
+- firing_char: https://www.youtube.com/watch?v=5EOeKTiw3y8
 
 Tatermand
 =========

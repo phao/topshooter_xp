@@ -1,0 +1,13 @@
+DBG.hpp
+main.cpp
+graphical.hpp
+xsdl.cpp
+xsdl.hpp
+xsdl_image.hpp
+xsdl_image.cpp
+xmath.hpp
+graphical.cpp
+character.hpp
+character.cpp
+char_coords.py
+particles_system.hpp

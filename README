@@ -34,6 +34,12 @@ purpose here was to get this working.
 walking char that can throw flames. The results were pretty cool for a
 first version (check the youtube video for a quick preview).
 
+- firing_char_single_img: Like firing_char, but the running program only
+relies on a single image file (atlas.png), which is built off the several
+images firing_char was using. (The files atlas.png and atlas.csv were
+generated with my imgpacker program.). A script generates some C++ from
+the atlas.csv file.
+
 Videos
 ======
 - rotating_swirls: https://www.youtube.com/watch?v=6UjjLtdaVjg

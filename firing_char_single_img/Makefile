@@ -13,7 +13,8 @@ $(shell $(CXX_BASE_CMD) -MM *.cpp > deps)
 
 include deps
 
-OBJS=character.o graphical.o xsdl.o xsdl_image.o main.o particles_system.o
+OBJS=character.o graphical.o xsdl.o xsdl_image.o main.o particles_system.o \
+	atlas.o
 
 build: $(OBJS)
 	$(CXX_BASE_CMD) *.o -o prog $(CXX_LIBS)

@@ -4,15 +4,15 @@
 #include "graphical.hpp"
 #include "character.hpp"
 
-using xmath::Float2;
-using xmath::PI;
+using xMATH::Float2;
+using xMATH::PI;
 
-namespace game {
+namespace GAME {
 
 Character::
 Character(const Float2 position,
-          gral::Image (* const images)[NUM_BODY_PIECES],
-          gral::Image *fire_particle,
+          GRAL::Image (* const images)[NUM_BODY_PIECES],
+          GRAL::Image *fire_particle,
           float firing_freq_ms) noexcept
   : facing_unit_direction {1.0f, 0.0f},
     facing_angle {0.0f},
@@ -54,7 +54,7 @@ weapon_face(const Float2 facing_point) noexcept {
    */
   const Float2 adjust = rotate(facing_unit_direction, Float2{0.0f, -1.0f});
   const Float2 weapon_pos = position +
-                            xmath::rotate(skeleton[WEAPON], adjust);
+                            xMATH::rotate(skeleton[WEAPON], adjust);
   facing_unit_direction = normalize(facing_point - weapon_pos);
   facing_angle = std::atan2(facing_unit_direction.y(),
                             facing_unit_direction.x());
@@ -157,7 +157,7 @@ fire(ParticlesSystem *particles, uint32_t ms_now) noexcept {
 
 void
 Character::
-render(gral::Screen *screen) noexcept {
+render(GRAL::Screen *screen) noexcept {
   constexpr float DEG_TO_RAD {PI<float>()/180.0f};
 
   float bouncing_angle {(anim_bouncing_ms/2 % 360) * DEG_TO_RAD};
@@ -225,13 +225,13 @@ update(ParticlesSystem *particles,
   }
 }
 
-xmath::Float2
+xMATH::Float2
 Character::
 weapon_top() const noexcept {
   Float2 adjust = rotate(facing_unit_direction, Float2{0.0f, -1.0f});
   Float2 up_diff = skeleton[WEAPON] +
                    Float2{0.0f, (*images)[WEAPON].height()*0.5f};
-  return position + xmath::rotate(up_diff, adjust);
+  return position + xMATH::rotate(up_diff, adjust);
 }
 
 /**

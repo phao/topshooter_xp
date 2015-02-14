@@ -7,18 +7,18 @@
 #include "xsdl.hpp"
 #include "graphical.hpp"
 
-namespace game {
+namespace GAME {
 
 struct ParticlesBatchSetup {
-  xmath::Float2 start_position;
+  xMATH::Float2 start_position;
   float center_out_angle;
   float spread_angle;
   float ms_min_vel;
   float ms_max_vel;
-  xsdl::Color color;
+  xSDL::Color color;
   Uint32 ms_start;
   Uint32 ms_duration;
-  gral::Image *img;
+  GRAL::Image *img;
 };
 
 class ParticlesSystem {
@@ -29,7 +29,7 @@ public:
   add_batch(const ParticlesBatchSetup& setup) noexcept;
 
   void
-  update_and_render(gral::Screen *screen, uint32_t ms_now);
+  update_and_render(GRAL::Screen *screen, uint32_t ms_now);
 
 private:
   enum {
@@ -38,12 +38,12 @@ private:
   };
 
   struct ParticlesBatch {
-    gral::Image *img;
-    xmath::Float2 start_position;
+    GRAL::Image *img;
+    xMATH::Float2 start_position;
     uint32_t ms_duration, ms_start;
-    xsdl::Color color;
+    xSDL::Color color;
     struct {
-      xmath::Float2 vel;
+      xMATH::Float2 vel;
       float angle;
     } particles[PARTICLES_PER_BATCH];
   };

@@ -11,3 +11,4 @@ character.hpp
 character.cpp
 char_coords.py
 particles_system.hpp
+particles_system.cpp

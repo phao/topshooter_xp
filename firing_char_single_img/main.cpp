@@ -11,12 +11,13 @@
 #include "graphical.hpp"
 #include "character.hpp"
 #include "particles_system.hpp"
+#include "atlas.hpp"
 
 #include "DBG.hpp"
 
-using xmath::Float2;
+using xMATH::Float2;
 
-namespace game {
+namespace GAME {
 
 class main {
 public:
@@ -25,16 +26,19 @@ public:
       win {title, width, height},
       rend {&win, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC},
       screen {&rend, width, height},
+      atlas {xIMG::load("atlas.png")},
       images {
-        gral::Image {&screen, ximg::load("head.png")},
-        gral::Image {&screen, ximg::load("shoulder_left.png")},
-        gral::Image {&screen, ximg::load("shoulder_right.png")},
-        gral::Image {&screen, ximg::load("torso.png")},
-        gral::Image {&screen, ximg::load("arm_left.png")},
-        gral::Image {&screen, ximg::load("weapon.png")},
-        gral::Image {&screen, ximg::load("arm_right.png")}
+        ATLAS::extract_image(&screen, &atlas, ATLAS::HEAD),
+        ATLAS::extract_image(&screen, &atlas, ATLAS::SHOULDER_LEFT),
+        ATLAS::extract_image(&screen, &atlas, ATLAS::SHOULDER_RIGHT),
+        ATLAS::extract_image(&screen, &atlas, ATLAS::TORSO),
+        ATLAS::extract_image(&screen, &atlas, ATLAS::ARM_LEFT),
+        ATLAS::extract_image(&screen, &atlas, ATLAS::WEAPON),
+        ATLAS::extract_image(&screen, &atlas, ATLAS::ARM_RIGHT)
       },
-      fire_particle {&screen, ximg::load("fire_particle.png")},
+      fire_particle {
+        ATLAS::extract_image(&screen, &atlas, ATLAS::CIRCLE_GRAD)
+      },
       player {Float2(0, 0), &images, &fire_particle}
   {
     srand(time(0));
@@ -53,7 +57,7 @@ public:
         }
         consume_event(event, now);
       }
-      rend.set_draw_color(xsdl::BLACK);
+      rend.set_draw_color(xSDL::BLACK);
       rend.clear();
       update_and_render(now, now-last_update);
       last_update = now;
@@ -125,13 +129,14 @@ private:
   }
 
 private:
-  xsdl::SDL sdl;
-  xsdl::Window win;
-  xsdl::Renderer rend;
-  gral::Screen screen;
-  gral::Image images[Character::NUM_BODY_PIECES];
+  xSDL::SDL sdl;
+  xSDL::Window win;
+  xSDL::Renderer rend;
+  GRAL::Screen screen;
+  xSDL::Surface atlas;
+  GRAL::Image images[Character::NUM_BODY_PIECES];
   ParticlesSystem particles;
-  gral::Image fire_particle;
+  GRAL::Image fire_particle;
   Character player;
 };
 
@@ -142,7 +147,7 @@ main(int argc, char **argv) {
   (void) argc;
   (void) argv;
   try {
-    return game::main("Walking Character", 800, 600).run();
+    return GAME::main("Walking Character", 800, 600).run();
   }
   catch (std::exception &e) {
     std::cerr << "Error: " << e.what() << ".\n";

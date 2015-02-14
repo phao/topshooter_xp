@@ -5,7 +5,7 @@
 #include "graphical.hpp"
 #include "particles_system.hpp"
 
-namespace game {
+namespace GAME {
 
 class Character {
 public:
@@ -20,19 +20,19 @@ public:
     NUM_BODY_PIECES
   };
 
-  static const xmath::Float2
+  static const xMATH::Float2
   skeleton[NUM_BODY_PIECES];
 
-  Character(const xmath::Float2 position,
-            gral::Image (* const images)[NUM_BODY_PIECES],
-            gral::Image *fire_particle,
+  Character(const xMATH::Float2 position,
+            GRAL::Image (* const images)[NUM_BODY_PIECES],
+            GRAL::Image *fire_particle,
             float firing_freq_ms = 1.0f/50.0f) noexcept;
 
   /**
    * Sets the character facing so the weapon faces the given point.
    */
   void
-  weapon_face(const xmath::Float2 facing_point) noexcept;
+  weapon_face(const xMATH::Float2 facing_point) noexcept;
 
   void
   walk_sideway_right() noexcept;
@@ -68,7 +68,7 @@ public:
   stop_firing() noexcept;
 
   void
-  render(gral::Screen *screen) noexcept;
+  render(GRAL::Screen *screen) noexcept;
 
   void
   fire(ParticlesSystem *particles, uint32_t ms_now) noexcept;
@@ -78,25 +78,25 @@ public:
          uint32_t ms_now,
          uint32_t dt_ms) noexcept;
 
-  xmath::Float2
+  xMATH::Float2
   weapon_top() const noexcept;
 
 private:
-  xmath::Float2 facing_unit_direction;
+  xMATH::Float2 facing_unit_direction;
   float facing_angle;
-  xmath::Float2 position;
+  xMATH::Float2 position;
 
   float speed;
   float forward;
   float right;
 
-  gral::Image (* const images)[NUM_BODY_PIECES];
+  GRAL::Image (* const images)[NUM_BODY_PIECES];
 
   uint32_t anim_bouncing_ms;
 
   uint32_t firing_since_ms;
   float firing_freq_ms;
-  gral::Image *fire_particle;
+  GRAL::Image *fire_particle;
 };
 
 } // end of game

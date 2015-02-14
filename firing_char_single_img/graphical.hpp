@@ -66,7 +66,7 @@
 #include "xsdl.hpp"
 #include "xsdl_image.hpp"
 
-namespace gral {
+namespace GRAL {
 
 class Screen;
 
@@ -74,8 +74,8 @@ class Image {
   friend class Screen;
 
 public:
-  Image(Screen *Screen, xsdl::Surface *surf);
-  Image(Screen *Screen, xsdl::Surface&& surf);
+  Image(Screen *Screen, xSDL::Surface *surf);
+  Image(Screen *Screen, xSDL::Surface&& surf);
 
   Image(Image&& src) noexcept;
   Image& operator=(Image&& src) noexcept;
@@ -88,35 +88,35 @@ public:
    * problem if you're drawing your images with the appropriated
    * draw_image_<ROT> call.
    */
-  xmath::Float2
-  center_for_base_at(xmath::Float2 base,
-                     xmath::Float2 unit_direction) noexcept;
+  xMATH::Float2
+  center_for_base_at(xMATH::Float2 base,
+                     xMATH::Float2 unit_direction) noexcept;
 
   /**
    * Assumes the base of the image is at its mid-left point. This isn't a
    * problem if you're drawing your images with the appropriated
    * draw_image_<ROT> call.
    */
-  xmath::Float2
-  center_for_top_at(xmath::Float2 top,
-                    xmath::Float2 unit_direction) noexcept;
+  xMATH::Float2
+  center_for_top_at(xMATH::Float2 top,
+                    xMATH::Float2 unit_direction) noexcept;
 
   void
   set_alpha_mod(uint8_t alpha_mod);
 
   void
-  set_color_mod(xsdl::Color color_mod);
+  set_color_mod(xSDL::Color color_mod);
 
   void
-  set_blend_mode(xsdl::BlendMode blend_mode);
+  set_blend_mode(xSDL::BlendMode blend_mode);
 
   uint8_t
   get_alpha_mod() const;
 
-  xsdl::Color
+  xSDL::Color
   get_color_mod() const;
 
-  xsdl::BlendMode
+  xSDL::BlendMode
   get_blend_mode() const;
 
   int
@@ -126,13 +126,13 @@ public:
   height() const noexcept;
 
 private:
-  xsdl::Texture tex;
+  xSDL::Texture tex;
   int w, h;
 };
 
 class BlendModeGuard {
 public:
-  BlendModeGuard(Image *img, xsdl::BlendMode blend_mode)
+  BlendModeGuard(Image *img, xSDL::BlendMode blend_mode)
     : img {img}, restore_blend_mode {img->get_blend_mode()}
   {
     img->set_blend_mode(blend_mode);
@@ -149,12 +149,12 @@ public:
 
 private:
   Image *img;
-  xsdl::BlendMode restore_blend_mode;
+  xSDL::BlendMode restore_blend_mode;
 };
 
 class ColorModGuard {
 public:
-  ColorModGuard(Image *img, xsdl::Color color)
+  ColorModGuard(Image *img, xSDL::Color color)
     : img {img}, restore_color {img->get_color_mod()}
   {
     img->set_color_mod(color);
@@ -171,7 +171,7 @@ public:
 
 private:
   Image *img;
-  xsdl::Color restore_color;
+  xSDL::Color restore_color;
 };
 
 class AlphaModGuard {
@@ -200,7 +200,7 @@ class Screen {
   friend class Image;
 
 public:
-  Screen(xsdl::Renderer *rend, int width, int height) noexcept;
+  Screen(xSDL::Renderer *rend, int width, int height) noexcept;
 
   Screen(Screen&& src) noexcept;
   Screen& operator=(Screen&& src) noexcept;
@@ -212,7 +212,7 @@ public:
   load_image(const char *file_name);
 
   void
-  fill_square(xmath::Float2 center, float side, xsdl::Color color);
+  fill_square(xMATH::Float2 center, float side, xSDL::Color color);
 
   /**
    * Draw the image with its CENTER at x,y and rotated by ANGLE around its
@@ -230,13 +230,13 @@ public:
    * function.
    */
   void
-  draw_image(Image *img, xmath::Float2 center,
+  draw_image(Image *img, xMATH::Float2 center,
              float angle,
              SDL_RendererFlip flip = SDL_FLIP_NONE);
 
   void
-  draw_image(Image *img, xmath::Float2 center,
-             float angle, xmath::Float2 rot_center,
+  draw_image(Image *img, xMATH::Float2 center,
+             float angle, xMATH::Float2 rot_center,
              SDL_RendererFlip flip = SDL_FLIP_NONE);
 
   /**
@@ -247,13 +247,13 @@ public:
    * draw_image(img, center, angle + PI*0.5f, flip);
    */
   void
-  draw_image_90(Image *img, xmath::Float2 center,
+  draw_image_90(Image *img, xMATH::Float2 center,
                 float angle = 0.0f,
                 SDL_RendererFlip flip = SDL_FLIP_NONE);
 
   void
-  draw_image_90(Image *img, xmath::Float2 center,
-                float angle, xmath::Float2 rot_center,
+  draw_image_90(Image *img, xMATH::Float2 center,
+                float angle, xMATH::Float2 rot_center,
                 SDL_RendererFlip flip = SDL_FLIP_NONE);
 
   /**
@@ -264,13 +264,13 @@ public:
    * draw_image(img, x, y, angle + PI, flip);
    */
   void
-  draw_image_180(Image *img, xmath::Float2 center,
+  draw_image_180(Image *img, xMATH::Float2 center,
                  float angle = 0.0f,
                  SDL_RendererFlip flip = SDL_FLIP_NONE);
 
   void
-  draw_image_180(Image *img, xmath::Float2 center,
-                 float angle, xmath::Float2 rot_center,
+  draw_image_180(Image *img, xMATH::Float2 center,
+                 float angle, xMATH::Float2 rot_center,
                  SDL_RendererFlip flip = SDL_FLIP_NONE);
 
   /**
@@ -281,13 +281,13 @@ public:
    * draw_image(img, x, y, angle + PI*1.5f, flip).
    */
   void
-  draw_image_270(Image *img, xmath::Float2 center,
+  draw_image_270(Image *img, xMATH::Float2 center,
                  float angle = 0.0f,
                  SDL_RendererFlip flip = SDL_FLIP_NONE);
 
   void
-  draw_image_270(Image *img, xmath::Float2 center,
-                 float angle, xmath::Float2 rot_center,
+  draw_image_270(Image *img, xMATH::Float2 center,
+                 float angle, xMATH::Float2 rot_center,
                  SDL_RendererFlip flip = SDL_FLIP_NONE);
 
   int
@@ -297,7 +297,7 @@ public:
   height() const noexcept;
 
 private:
-  xsdl::Renderer *rend;
+  xSDL::Renderer *rend;
   int w, h;
 };
 

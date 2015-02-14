@@ -12,6 +12,7 @@
 #include "character.hpp"
 #include "particles_system.hpp"
 #include "atlas.hpp"
+#include "static_buffer.hpp"
 
 #include "DBG.hpp"
 
@@ -27,19 +28,11 @@ public:
       rend {&win, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC},
       screen {&rend, width, height},
       atlas {xIMG::load("atlas.png")},
-      images {
-        ATLAS::extract_image(&screen, &atlas, ATLAS::HEAD),
-        ATLAS::extract_image(&screen, &atlas, ATLAS::SHOULDER_LEFT),
-        ATLAS::extract_image(&screen, &atlas, ATLAS::SHOULDER_RIGHT),
-        ATLAS::extract_image(&screen, &atlas, ATLAS::TORSO),
-        ATLAS::extract_image(&screen, &atlas, ATLAS::ARM_LEFT),
-        ATLAS::extract_image(&screen, &atlas, ATLAS::WEAPON),
-        ATLAS::extract_image(&screen, &atlas, ATLAS::ARM_RIGHT)
-      },
+      skeleton {make_skeleton(&screen, &atlas)},
       fire_particle {
         ATLAS::extract_image(&screen, &atlas, ATLAS::CIRCLE_GRAD)
       },
-      player {Float2(0, 0), &images, &fire_particle}
+      player {Float2(0, 0), skeleton.array_data(), &fire_particle}
   {
     srand(time(0));
   }
@@ -128,13 +121,25 @@ private:
     }
   }
 
+  typedef StaticBuffer<GRAL::Image, Character::NUM_BODY_PIECES> SkeletonBuffer;
+
+  SkeletonBuffer
+  make_skeleton(GRAL::Screen *screen, xSDL::Surface *atlas) {
+    SkeletonBuffer buf;
+    for (size_t i = 0; i < ATLAS::ENG_PIECES; ++i) {
+      auto piece = ATLAS::PieceId(ATLAS::ENG_HEAD + i);
+      buf.emplace_at(i, ATLAS::extract_image(screen, atlas, piece));
+    }
+    return buf;
+  }
+
 private:
   xSDL::SDL sdl;
   xSDL::Window win;
   xSDL::Renderer rend;
   GRAL::Screen screen;
   xSDL::Surface atlas;
-  GRAL::Image images[Character::NUM_BODY_PIECES];
+  SkeletonBuffer skeleton;
   ParticlesSystem particles;
   GRAL::Image fire_particle;
   Character player;

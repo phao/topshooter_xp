@@ -13,3 +13,4 @@ xsdl.cpp
 xsdl.hpp
 xsdl_image.cpp
 xsdl_image.hpp
+static_buffer.hpp

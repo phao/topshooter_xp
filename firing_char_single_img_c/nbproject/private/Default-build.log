@@ -1,0 +1,23 @@
+In file included from atlas.cpp:1:
+./atlas.hpp:4:10: fatal error: 'xsdl.hpp' file not found
+#include "xsdl.hpp"
+         ^
+1 error generated.
+eng_character.cpp:3:10: fatal error: 'xmath.hpp' file not found
+#include "xmath.hpp"
+         ^
+1 error generated.
+main.cpp:9:10: fatal error: 'xsdl.hpp' file not found
+#include "xsdl.hpp"
+         ^
+1 error generated.
+particles_system.cpp:7:10: fatal error: 'xmath.hpp' file not found
+#include "xmath.hpp"
+         ^
+1 error generated.
+clang++ -stdlib=libc++ -std=c++1y -Wall -pedantic -Wextra -Warray-bounds -Wunreachable-code -pipe -I/usr/include/SDL2 -D_REENTRANT -g3 -c eng_character.cpp
+eng_character.cpp:3:10: fatal error: 'xmath.hpp' file not found
+#include "xmath.hpp"
+         ^
+1 error generated.
+make: *** [eng_character.o] Error 1

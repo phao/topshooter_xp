@@ -1,0 +1,3 @@
+#!/bin/bash
+
+awk -F',' -f atlas2cpp.awk < atlas.csv

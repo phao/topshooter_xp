@@ -1,0 +1,226 @@
+OVERALL
+=======
+These conventional rules apply to all codebase, except for xMath.h and main.c,
+which will be documented separately.
+
+PREFIXING
+=========
+Each .h/.c files pair specify a unit in the program. Every unit must have its
+prefix. A unit can also be composed of only a .h or .c file, but those are less
+common.
+
+Example prefixes:
+  - PARTS
+  - GRAL
+  - ATLAS
+
+Units are not supposed to use identifiers starting with prefixes of other
+units.
+
+PREFIXING - TYPES
+=================
+In some cases, it's wanted to have an identifier whose name is solely the
+prefix. That happened only once in this project: PARTS.
+
+ABSTRACT DATA TYPES (ADT)
+=========================
+Some types are abstract data types. Those are distinguished by having a
+typedef. If a type is supposed to be an ADT, there will be a typedef hiding the
+implementation type in a header file. For example:
+
+  typedef struct PARTS PARTS;
+
+This marks the type PARTS as an ADT whose implementation type is struct PARTS.
+The implementation type of PARTS can change at every compilation if
+implementors of the unit find appropriate.
+
+As an ADT, its data members shouldn't be accessed by users of the unit.
+Implementors of an ADT can change every aspect they would like about the data
+members.
+
+An implementation type can be present in a header file. For example:
+
+  struct PARTS {
+    ...
+  };
+
+  typedef struct PARTS PARTS;
+
+This marks PARTS as an ADT and its implementation type isn't supposed to be
+relied upon (since it can change, go out of existence, etc). As a rule, when
+an ADT is created, a user of the unit cannot assume what is its implementation
+type.
+
+  NOTE: There could be some rare case in which an ADT (T) and its
+  implementation type (U) follow this pattern:
+
+  - T is implemented by U (i.e. there is a `typedef U T;`).
+  - U is supposed to be a concrete type used by users of the unit.
+
+  In cases like this, users of the unit can declare variables of type U and
+  use it however they're supposed to, but they still can't rely on T being an
+  alias to U.
+
+  Cases like these are identified by the fact that there are functions in
+  the unit taking parameters that involve U somehow (U, U*, const U*, a struct
+  concrete type which has U as one of its members, ...).
+
+ADT - EXAMPLE
+=============
+The implementors of the particles system realized that it's interesting to
+change the API of the type. They'll add a destruction function (it doesn't
+have one as of now). This allows them to be even more flexible on changing
+how the type is implemented.
+
+Now that users of PARTS have to call destroy on it, PARTS can be a pointer.
+
+  struct PARTS;
+  typedef struct PARTS *PARTS;
+
+This allows for implementors of PARTS, now, to be more flexible on the kinds
+of changes they can make to the implementation of PARTS without requiring
+recompilation. This isn't a feature we're interested in as of now in this
+project but it's undoubtly useful.
+
+ADT - ACCESS
+============
+Access to an ADT has to be done through provided macros and functions. For
+example, if you look at Particles.h, you'd find the following:
+
+  typedef struct PARTS_Batch PARTS_Batch;
+  typedef struct PARTS_Each PARTS_Each;
+
+This marks two types as ADTs. But if you look at the functions and macros
+provided by this unit, you'd see that none mentions these ADTs:
+
+  void
+  PARTS_Setup(PARTS *parts);
+
+  void
+  PARTS_AddBatch(PARTS *parts,
+                 const struct PARTS_BatchSetup *setup);
+
+  void
+  PARTS_UpdateAndRender(PARTS *parts,
+                        GRAL_Screen *screen,
+                        Uint32 ms_now);
+
+This leads to an ungliness (which doesn't bother me very much, but I'd rather
+not have it) in these convention rules. Header files can contain ADTs whose
+sole purpose is to help define other ADTs. Even though PARTS_Each is an ADT
+in the particles header, there are no operations you can do on an instance of
+PARTS_Each, making it useless for direct use by an user of the unit.
+
+A user of the Particles unit is supposed to have variables of the PARTS ADT.
+Having one, he can use PARTS_Setup, PARTS_AddBatch, and also
+PARTS_UpdateAndRender. He/She is also supposed to have variables of the
+struct PARTS_BatchSetup concrete type, which isn't an ADT: it's a concrete
+type whose data members are supposed to relied on and accessed by users of the
+unit.
+
+The purpose of types like struct PARTS_BatchSetup is to transfer large coherent
+groupings of data from one unit into another. Usually, function parameters will
+be enough, but not always. Some other units are on the verge of nedding types
+like those (e.g. check ENG_Setup's parameters).
+
+main.c
+======
+Main is a "glue unit" that binds everything together. It sets things up and so
+forth. It's not supposed to provide a service to other units.
+
+Main isn't supposed to have a header file. Main also should only have one non
+static function, which is main.
+
+This makes main special because a lot of the rules for units become less
+important for main. It doesn't have to care about prefixing, or about types
+and functions exported to other units.
+
+xMath.h
+=======
+Originally, xMath.h had a XM prefix and since the vector 2d type isn't an ADT,
+it was referred to as struct XM_Float2 (if it had a typedef, it'd be considered
+an ADT).
+
+Math code, even for simple games, tend to involve considerable vector
+manipulations, which means that typing struct XM_Float2, and calling functions
+like XM_Add_f2 or XM_AddInto_f2 was decreasing the "signal to noise ratio" in
+the regions of code that did such things. Code was becoming too verbose while
+very little was being done.
+
+This led to an exception for naming made only for this unit (and possibly
+will be made for others like it, if they apear).
+
+- This unit doesn't need prefix.
+- vec2f isn't an ADT, even though it's typedef'ed.
+
+This makes code using xMath have a somewhat better form/syntax. This is one
+from Engineer.c:
+
+  vec2f *eng_fu = &eng->facing_unit;
+  vec2f adjust = rot_2f(*eng_fu, (vec2f) {0.0f, -1.0f});
+  vec2f weapon_pos = add_2f(eng->position,
+                            rot_2f(skeleton[ENG_WEAPON], adjust));
+  *eng_fu = normalize_2f(sub_2f(facing_point, weapon_pos));
+  eng->facing_angle = atan2f(eng_fu->y, eng_fu->x);
+
+Contrast it with:
+
+  struct XM_Float2 *eng_fu = &eng->facing_unit;
+  struct XM_Float2 adjust = XM_Rot_2f(*eng_fu,
+                                      (struct XM_Float2) {0.0f, -1.0f});
+  struct XM_Float2 weapon_pos = XM_Add_2f(eng->position,
+                                          XM_Rot_2f(skeleton[ENG_WEAPON],
+                                                    adjust));
+  *eng_fu = XM_Normalize_2f(XM_Sub_2f(facing_point, weapon_pos));
+  eng->facing_angle = atan2f(eng_fu->y, eng_fu->x);
+
+If you look at the naming convention of other units, you'd see that
+abbreviation isn't much common. You see long names like
+GRAL_SetupImageFromSurfaceRegion or GRAL_ImageHeight instead of some
+abbreviation like GRAL_ImgH. So xMath would not have names like XM_Rot_2f. It
+would be (and it was) XM_Rotate_f2, which would make things yet more noisy.
+
+Note that I'm still looking for a good abbreviation for normalize_2f.
+
+As another note, it's interesting to point out that even though operator
+overloading significantly helps in here, it doesn't 100% solve the problem
+because functions like rotate, normalize, dot product and cross product still
+would need special names. But it helps regardless. A C++ version of this code
+is much less noisy. Since this is a C rewrite of a C++ code base I had, you can
+actually look up what this looked like in my C++ code:
+
+  const Float2 adjust = xMATH::rotate(facing_unit_direction,
+                                      Float2{0.0f, -1.0f});
+  const Float2 weapon_pos = position + xMATH::rotate(skeleton[WEAPON], adjust);
+  facing_unit_direction = xMATH::normalize(facing_point - weapon_pos);
+  facing_angle = std::atan2(facing_unit_direction.y(),
+                            facing_unit_direction.x());
+
+And if I had used short names without const qualifiers:
+
+  vec2f adjust = rotate(facing_unit, vec2f{0.0f, -1.0f});
+  vec2f weapon_pos = position + rotate(skeleton[WEAPON], adjust);
+  facing_unit = normalize(facing_point - weapon_pos);
+  facing_angle = std::atan2(facing_unit.y(), facing_unit.x());
+
+As you can see, it becomes much better even though rotate and normalize need
+special names. In C++, though, as you can see it's not only operator
+overloading that helps. There are also function overloading, argument
+dependent lookup, and "the implicit of the `this` pointer".
+
+ABBREVIATIONS
+=============
+They should be avoided. If a function is expected to be used somewhat often,
+then they can be used more frequently, but never abused. There aren't many
+abbreviations outside xMath.h. An example is the *RotRel drawing set of
+functions:
+
+  GRAL_DrawImageRotRel
+  GRAL_DrawImage90RotRel
+  GRAL_DrawImage180RotRel
+  GRAL_DrawImage270RotRel
+
+It was needed a way to say "draw image rotating X degrees with rotation point
+relative to a given point", thus the names. They aren't expected to be used
+often, but a better name seems hard to come by. Things like
+GRAL_DrawImageRotateRelativeTo seem unecessarily too long.

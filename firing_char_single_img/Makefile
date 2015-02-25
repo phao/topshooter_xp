@@ -1,7 +1,7 @@
 CXX=clang++
 CXX_ARGS=-stdlib=libc++ -std=c++1y -Wall -pedantic -Wextra -Warray-bounds \
 	-Wunreachable-code -pipe $(shell sdl2-config --cflags)
-CXX_DEBUG=-g3 -O1
+CXX_DEBUG=-O3 -march=native -DNDEBUG
 CXX_LIBS=$(shell sdl2-config --libs) -lSDL2_image
 
 CXX_BASE_CMD=$(CXX) $(CXX_ARGS) $(CXX_DEBUG)
@@ -13,8 +13,8 @@ $(shell $(CXX_BASE_CMD) -MM *.cpp > deps)
 
 include deps
 
-OBJS=character.o graphical.o xsdl.o xsdl_image.o main.o particles_system.o \
-	atlas.o
+OBJS=EngCharacter.o Graphical.o xSDL.o xSDL_image.o main.o \
+  Atlas.o ParticlesSystem.o
 
 build: $(OBJS)
 	$(CXX_BASE_CMD) *.o -o prog $(CXX_LIBS)

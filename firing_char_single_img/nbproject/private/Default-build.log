@@ -1,0 +1,1 @@
+clang++ -stdlib=libc++ -std=c++1y -Wall -pedantic -Wextra -Warray-bounds -Wunreachable-code -pipe -I/usr/include/SDL2 -D_REENTRANT -g3 -c atlas.cpp

@@ -6,34 +6,33 @@
 #include <algorithm>
 #include <iostream>
 
-#include "xsdl.hpp"
-#include "xsdl_image.hpp"
-#include "graphical.hpp"
-#include "character.hpp"
-#include "particles_system.hpp"
-#include "atlas.hpp"
-#include "static_buffer.hpp"
-
-#include "DBG.hpp"
+#include "xSDL.hpp"
+#include "xSDL_image.hpp"
+#include "Graphical.hpp"
+#include "EngCharacter.hpp"
+#include "ParticlesSystem.hpp"
+#include "Atlas.hpp"
+#include "EngSkeleton.hpp"
+#include "xMath.hpp"
 
 using xMATH::Float2;
 
 namespace GAME {
 
-class main {
+class Main {
 public:
-  main(const char * const title, const int width, const int height)
+  Main(const char * const title, const int width, const int height)
     : sdl {SDL_INIT_VIDEO},
       win {title, width, height},
       rend {&win, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC},
       screen {&rend, width, height},
       atlas {xIMG::load("atlas.png")},
-      skeleton {make_skeleton(&screen, &atlas)},
-      fire_particle {
-        ATLAS::extract_image(&screen, &atlas, ATLAS::CIRCLE_GRAD)
-      },
-      player {Float2(0, 0), skeleton.array_data(), &fire_particle}
+      skeleton {&screen, &atlas},
+      fire_particle {&screen, &atlas, ATLAS::piece_geom(ATLAS::CIRCLE_GRAD)},
+      player {Float2(0, 0), skeleton.images(), &fire_particle}
   {
+    // I should learn how to use C++11's features for random numbers. I've read
+    // in too many places that C's rand/srand are terrible.
     srand(time(0));
   }
 
@@ -121,28 +120,16 @@ private:
     }
   }
 
-  typedef StaticBuffer<GRAL::Image, Character::NUM_BODY_PIECES> SkeletonBuffer;
-
-  SkeletonBuffer
-  make_skeleton(GRAL::Screen *screen, xSDL::Surface *atlas) {
-    SkeletonBuffer buf;
-    for (size_t i = 0; i < ATLAS::ENG_PIECES; ++i) {
-      auto piece = ATLAS::PieceId(ATLAS::ENG_HEAD + i);
-      buf.emplace_at(i, ATLAS::extract_image(screen, atlas, piece));
-    }
-    return buf;
-  }
-
 private:
   xSDL::SDL sdl;
   xSDL::Window win;
   xSDL::Renderer rend;
   GRAL::Screen screen;
   xSDL::Surface atlas;
-  SkeletonBuffer skeleton;
+  EngSkeleton skeleton;
   ParticlesSystem particles;
   GRAL::Image fire_particle;
-  Character player;
+  EngCharacter player;
 };
 
 }
@@ -152,7 +139,7 @@ main(int argc, char **argv) {
   (void) argc;
   (void) argv;
   try {
-    return GAME::main("Walking Character", 800, 600).run();
+    return GAME::Main("Walking Character", 800, 600).run();
   }
   catch (std::exception &e) {
     std::cerr << "Error: " << e.what() << ".\n";
